@@ -17,9 +17,6 @@ debug = 1
 
 ## Make sure you setup particles.json
 
-# MQTT
-mqtt_server = "192.168.210.77"
-
 import traceback
 import httplib2
 import os
@@ -30,13 +27,6 @@ from apiclient import discovery
 from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
-
-try:
-    from paho.mqtt.publish import single
-except ImportError:
-    mqtt = False
-else:
-    mqtt = True
 
 import time
 import datetime
@@ -100,15 +90,6 @@ def get_credentials():
 # This does the actual "send" to the client, via MQTT and via Particle Cloud
 def send(where, what, when):
     # when is redundant, since it's in the What string... but whatever, it might be useful
-
-    # push to mqtt if it's configured
-    if mqtt:
-        try:
-            single("gcal/" + where + "/LEDstring", payload=what, hostname=mqtt_server, qos=1)
-        except:
-            # If you've configured MQTT and are having problems, here's a good place for debug statements
-            print("Failed to send to MQTT: ", traceback.format_exc())
-            pass
 
     # Send to Particle cloud, where each room might have multiple Particle InternetButton devices
     # -uses Particle REST API (https://docs.particle.io/reference/api/)
