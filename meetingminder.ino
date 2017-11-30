@@ -1,8 +1,6 @@
 // This #include statement was automatically added by the Particle IDE.
 #include <InternetButton.h>
 
-//#include "InternetButton/InternetButton.h"
-
 InternetButton b = InternetButton();
 uint8_t button1 = 0;
 uint8_t button2 = 0;
@@ -19,37 +17,20 @@ int attempts = 0;
 void setup() {
     // Tell b to get everything ready to go
     b.begin();
+    b.allLedsOff();
 
     // We are also going to declare a Particle.function so that we can turn the LED on and off from the cloud.
    Particle.function("LEDs",ledToggle);
-   Particle.function("Tune", playTune);
-
-   ledToggle("rgrgrgrgrgr");
-
-   pinMode(buzzer, OUTPUT);
-   digitalWrite(buzzer, LOW);
-
+   b.playSong("C4,8,E4,8,G4,8,C5,8,G5,4");
 }
 
 int ledToggle(String command) {
-    /*
-
-    This is a Particle.function as defined by the Particle API. When it's called by the cloud, we
-    simply take the input string "command" and convert it to lights and actions.
-
-    The command, in our case, is a simple string of colors where the capitalized letter is the bright
-    version and the lowercase letter is a dim version. We fill the wheel clockwise starting at position 1.
-
-    Future versions might use the orientation of the InternetButton (via accelerometer) to make it look
-    good no matter how it's mounted, whether that's with the USB at the top, bottom, or any direction.
-
-    R/r = Red, G/g = Green, B/b = Blue, Y/y = Yellow, O/o = Orange, anything else = dim white
-
-    */
 
     int buzz = 0;
-
     b.allLedsOff();
+    delay(5);
+    
+    Particle.publish("ledToggle",command, 60, PRIVATE);
 
     for (int n=0; n<11; n++) {
 
@@ -62,60 +43,61 @@ int ledToggle(String command) {
         char c = command.charAt(n);
 
         switch (c) {
+            
             case 'R':
-                b.ledOn(n+1, 255, 0, 0);
-                buzz++;
+                b.ledOn(n+1, 255, 0, 0); delay(5);
+                buzz++; 
                 break;
 
             case 'r':
-                b.ledOn(n+1, 10, 0, 0);
+                b.ledOn(n+1, 10, 0, 0); delay(5);
                 break;
 
             case 'G':
-                b.ledOn(n+1, 0, 255, 0);
+                b.ledOn(n+1, 0, 255, 0); delay(5);
                 break;
 
             case 'g':
-                b.ledOn(n+1, 0, 10, 0);
+                b.ledOn(n+1, 0, 110, 0); delay(5);
                 break;
 
             case 'Y':
-                b.ledOn(n+1, 255, 255, 0);
+                b.ledOn(n+1, 255, 255, 0); delay(5);
                 break;
 
             case 'y':
-                b.ledOn(n+1, 10, 10, 0);
+                b.ledOn(n+1, 10, 10, 0); delay(5);
                 break;
 
             case 'O':
-                b.ledOn(n+1, 255, 128, 0);
+                b.ledOn(n+1, 255, 128, 0); delay(5);
                 break;
 
             case 'o':
-                b.ledOn(n+1, 20, 10, 0);
+                b.ledOn(n+1, 20, 10, 0); delay(5);
                 break;
 
             case 'B':
-                b.ledOn(n+1, 0, 0, 128); //Blue is hella bright
+                b.ledOn(n+1, 0, 0, 128); delay(5);
                 break;
 
             case 'b':
-                b.ledOn(n+1, 0, 0, 10);
+                b.ledOn(n+1, 0, 0, 10); delay(5);
                 break;
 
             default:
-                b.ledOn(n+1, 1, 1, 1);
+                b.ledOn(n+1, 1, 1, 1); delay(5);
                 break;
         }
     }
-
+    delay(5);
+    
     if (buzz>9) {
         /*
         playSong takes a string in the format
         "NOTE,TYPE,NOTE,TYPE..."
         Types are note types that define duration so
         8 is a 1/8th note and 4 is a 1/4 note
-
         */
 
         //Play Sad Trombone
@@ -133,20 +115,9 @@ int ledToggle(String command) {
 
     digitalWrite(buzzer, LOW);
 
+
     return command.length();
 }
-
-int playTune(String command) {
-    /*
-    This is a Particle.function as defined by the Particle API. When it's called by the cloud, we
-    simply take the input string "command" and convert it to lights and actions.
-
-    Play a tune that fits the required InternetButton playSong format as specified by the Cloud.
-    */
-
-    b.playSong(command);
-}
-
 
 /* loop(), in contrast to setup(), runs all the time. Over and over again.
 Remember this particularly if there are things you DON'T want to run a lot. Like Particle.publish() */
@@ -166,11 +137,6 @@ void loop() {
 
     }
 
-
-    //These are stubs from Particle's example code. I'm leaving them
-    //here just to make it easier to add functionality later on.
-    //
-    //They do NOTHING right now.
     if(b.allButtonsOn()){
         if(!buttonAll){
             buttonAll = 1;
