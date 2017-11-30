@@ -45,7 +45,9 @@ except ImportError:
 # at ~/.credentials/calendar-python-quickstart.json
 SCOPES = 'https://www.googleapis.com/auth/calendar.readonly'
 CLIENT_SECRET_FILE = 'client_secret.json'
-APPLICATION_NAME = 'Google Calendar API Python Quickstart'
+#APPLICATION_NAME = 'Google Calendar API Python Quickstart'
+APPLICATION_NAME = 'Conference Room Scheduling'
+
 
 # Get the list of Particles associated with my account
 try:
@@ -94,14 +96,17 @@ def send(where, what, when):
     # Send to Particle cloud, where each room might have multiple Particle InternetButton devices
     # -uses Particle REST API (https://docs.particle.io/reference/api/)
     if where in particle["particles"]:
-        for p in particle["particles"][where].split(','):
-            try:
-                if debug: print("Particle: ", where, p)
-                r = requests.post('https://api.particle.io/v1/devices/%s/LEDs' % p,
-                                  data={'args': what, 'access_token': particle["accessToken"]})
-                if r.status_code != 200: print("Particle returned: ", r.text)
-            except:
-                print("ERR: Particle Cloud POST failed")
+        # for p in particle["particles"][where].split(','):
+        p = particle["particles"]['hackmeeting']
+        try:
+            if debug: print("Particle: ", where, p)
+            r = requests.post('https://api.particle.io/v1/devices/%s/LEDs' % p,
+                              data={'args': what, 'access_token': particle["accessToken"]})
+            # if r.status_code != 200: 
+            print("Particle returned: ", r.text)
+            print("Status Code: ", r.status_code)
+        except:
+            print("ERR: Particle Cloud POST failed")
 
     return
 
