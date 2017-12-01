@@ -88,6 +88,44 @@ def get_credentials():
         print('Storing credentials to ' + credential_path)
     return credentials
 
+def transitToCarp():
+    googleToken = particle["googleAPIToken"];
+    originLocation = "50 Castilian Drive, Goleta, CA"
+    destinationLocation = "Viola Fields, Carpinteria, CA"
+    light = ''
+    # now_s = datetime.datetime.now(pytz.timezone(timeZone)).isoformat()
+    
+    t = requests.get('https://maps.googleapis.com/maps/api/distancematrix/json',
+        params={"units": "imperial", "origins": originLocation, "destinations": destinationLocation, "departure_time": "now", "travelMode": "driving", "trafficModel": "pessimistic", "key": googleToken})
+        
+    json_data = json.loads(t.text)
+    duration_time = json_data['rows'][0]['elements'][0]['duration_in_traffic']['text']
+    minutes = int(duration_time.split()[0])
+
+    blocks = round(minutes / 5)
+
+    for i in range (1, blocks + 1):
+        if i < 5:
+            light = light + "G"
+        elif i < 9:
+            light = light + 'Y'
+        else:
+            light = light + 'R'
+
+            
+    print('light: ' + light)
+
+    p = particle["particles"]['hackmeeting']
+    try:
+        r = requests.post('https://api.particle.io/v1/devices/%s/carpTransit' % p,
+                      data={'args': light, 'access_token': particle["accessToken"]})
+        # if r.status_code != 200: 
+        print("Particle returned for transit: ", r.text)
+        print("Status Code for transit ", r.status_code)
+    except:
+        print("ERR: Particle Cloud POST failed")
+    
+
 
 # This does the actual "send" to the client, via MQTT and via Particle Cloud
 def send(where, what, when):
@@ -119,6 +157,9 @@ def sendAllP(msg="bzzzzrzzzzb"):
 
 
 def main():
+    
+    transitToCarp();
+    
     """
     Creates a Google Calendar API service object and outputs a list of the next
     10 events on the user's calendar.
