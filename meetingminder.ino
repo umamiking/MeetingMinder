@@ -11,24 +11,51 @@ int gaugeCount = 0;
 int buzzer = D0;
 
 int attempts = 0;
-
+// String last_command = "rgrgrgrgrgr";
+String carpTime = "bbbbbbbbbbb";
+String meetingTime = "ggggggggggg";
+bool checker = false;
 
 // The code in setup() runs once when the device is powered on or reset. Used for setting up states, modes, etc
 void setup() {
     // Tell b to get everything ready to go
     b.begin();
     b.allLedsOff();
+    b.rainbow(10);
 
     // We are also going to declare a Particle.function so that we can turn the LED on and off from the cloud.
    Particle.function("LEDs",ledToggle);
+   
+   Particle.function("CarpTransit",carpTransit);
+   
    b.playSong("C4,8,E4,8,G4,8,C5,8,G5,4");
+}
+
+int carpTransit(String command) {
+
+    b.allLedsOff();
+    delay(5);
+    
+    Particle.publish("carpTransit",command, 60, PRIVATE);
+    carpTime = command;
+
+    return command.length();
 }
 
 int ledToggle(String command) {
 
     int buzz = 0;
+    
+    meetingTime = command;
+    
+    // if checker: {
+        
+        
+    // }
+    
+    meetingTime = command;
     b.allLedsOff();
-    delay(5);
+    delay(3);
     
     Particle.publish("ledToggle",command, 60, PRIVATE);
 
@@ -90,7 +117,7 @@ int ledToggle(String command) {
                 break;
         }
     }
-    delay(5);
+    delay(3);
     
     if (buzz>9) {
         /*
@@ -140,10 +167,11 @@ void loop() {
     if(b.allButtonsOn()){
         if(!buttonAll){
             buttonAll = 1;
-            Particle.publish("allbuttons",NULL, 60, PRIVATE);
+            Particle.publish("allbuttons","All buttons pushed", 60, PRIVATE);
             b.rainbow(10);
             delay(100);
             b.allLedsOff();
+            ledToggle(meetingTime);
         }
     }
     else {buttonAll = 0;}
@@ -151,10 +179,12 @@ void loop() {
     if(b.buttonOn(1)){
         if(!button1){
             button1 = 1;
-            Particle.publish("button1",NULL, 60, PRIVATE);
-            b.ledOn(12,50,0,0);
-            delay(100);
-            b.ledOff(12);
+            Particle.publish("button1",carpTime, 60, PRIVATE);
+            checker = true;
+            ledToggle(carpTime);
+            delay(3000);
+            b.allLedsOff();
+            ledToggle(meetingTime);
         }
     }
     else {button1 = 0;}
@@ -162,10 +192,11 @@ void loop() {
     if(b.buttonOn(2)){
         if(!button2){
             button2 = 1;
-            Particle.publish("button2",NULL, 60, PRIVATE);
+            Particle.publish("button2","Button 2 was pushed", 60, PRIVATE);
             b.ledOn(3,0,50,0);
             delay(100);
             b.ledOff(3);
+            ledToggle(meetingTime);
         }
     }
     else {button2 = 0;}
@@ -173,10 +204,8 @@ void loop() {
     if(b.buttonOn(3)){
         if(!button3){
             button3 = 1;
-            Particle.publish("button3",NULL, 60, PRIVATE);
-            b.ledOn(6,0,0,50);
-            delay(100);
-            b.ledOff(6);
+            Particle.publish("book_it", "{\"startTime\":\"8:30PM\", \"endTime\":\"9:30PM\"}", 60, PRIVATE);
+            ledToggle(meetingTime);
         }
     }
     else {button3 = 0;}
@@ -184,10 +213,11 @@ void loop() {
     if(b.buttonOn(4)){
         if(!button4){
             button4 = 1;
-            Particle.publish("button4",NULL, 60, PRIVATE);
+            Particle.publish("button4","Button 4 was pushed", 60, PRIVATE);
             b.ledOn(9,30,30,30);
             delay(100);
             b.ledOff(9);
+            ledToggle(meetingTime);
         }
     }
     else {button4 = 0;}
