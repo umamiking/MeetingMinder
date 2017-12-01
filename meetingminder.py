@@ -113,7 +113,8 @@ def transitToCarp():
             light = light + 'R'
 
             
-    print('light: ' + light)
+    print('Transit time to Carpinteria: ' + str(minutes))
+    print('Traffic lights: ' + light)
 
     p = particle["particles"]['hackmeeting']
     try:
